@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  # Kontainer 1: Aplikasi Web kita
+  web-app:
+    build: .
+    ports:
+      - "8085:3000"
+    depends_on:
+      - redis-db
+
+  # Kontainer 2: Database Redis
+  redis-db:
+    image: "redis:alpine"
