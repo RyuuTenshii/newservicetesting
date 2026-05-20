@@ -1,4 +1,4 @@
-name: Docker CI Pipeline
+name: Docker CI/CD Pipeline
 
 # 1. Kapan robot ini harus bekerja?
 on:
@@ -7,7 +7,7 @@ on:
 
 # 2. Apa saja tugas yang harus robot ini lakukan?
 jobs:
-  build-test:
+  build-and-deploy:
     # Robot akan bekerja di dalam server virtual Ubuntu milik GitHub
     runs-on: ubuntu-latest
 
@@ -16,8 +16,18 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
 
-    # Langkah B: Robot melakukan simulasi masak (build) Docker Image
-    - name: Build Docker Image Test
-      run: |
-        docker build -t app-pertama:test .
-        echo "Aman! Docker build berhasil tanpa ada error teknis."
+    # Langkah B: Robot login otomatis ke Docker Hub menggunakan rahasia dari GitHub Secrets
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    # Langkah C: Robot memasak Image dan langsung mengunggah (push) ke Docker Hub global
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        # PENTING: Ganti 'username-dockerhubmu' di bawah dengan USERNAME ASLI Docker Hub kamu!
+        tags: ryuutenshi90/app-pertama:latest
