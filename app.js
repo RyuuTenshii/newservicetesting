@@ -27,7 +27,7 @@ async function startServer() {
     });
 
     server.listen(3000, () => {
-        console.log('Server Compose siap di port 3000');
+        console.log('Server Compose running port 3000');
     });
 }
 
