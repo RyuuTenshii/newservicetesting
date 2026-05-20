@@ -1,0 +1,23 @@
+name: Docker CI Pipeline
+
+# 1. Kapan robot ini harus bekerja?
+on:
+  push:
+    branches: [ "main" ]
+
+# 2. Apa saja tugas yang harus robot ini lakukan?
+jobs:
+  build-test:
+    # Robot akan bekerja di dalam server virtual Ubuntu milik GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # Langkah A: Robot mendownload/meng-clone kode dari repo GitHub kamu
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    # Langkah B: Robot melakukan simulasi masak (build) Docker Image
+    - name: Build Docker Image Test
+      run: |
+        docker build -t app-pertama:test .
+        echo "Aman! Docker build berhasil tanpa ada error teknis."
