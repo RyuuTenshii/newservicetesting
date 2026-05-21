@@ -1,33 +1,43 @@
-name: Docker CI/CD Pipeline
+name: CI/CD Pipeline
 
-# 1. Kapan robot ini harus bekerja?
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
-# 2. Apa saja tugas yang harus robot ini lakukan?
 jobs:
-  build-and-deploy:
-    # Robot akan bekerja di dalam server virtual Ubuntu milik GitHub
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-    # Langkah A: Robot mendownload/meng-clone kode dari repo GitHub kamu
-    - name: Checkout source code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # Langkah B: Robot login otomatis ke Docker Hub menggunakan rahasia dari GitHub Secrets
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-    # Langkah C: Robot memasak Image dan langsung mengunggah (push) ke Docker Hub global
-    - name: Build and Push Docker Image
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        # PENTING: Ganti 'username-dockerhubmu' di bawah dengan USERNAME ASLI Docker Hub kamu!
-        tags: ryuutenshi90/app-pertama:latest
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/app-pertama:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd ~/newservicetesting
+            git pull origin main
+            docker compose pull
+            docker compose up -d
