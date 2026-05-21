@@ -23,11 +23,11 @@ async function startServer() {
         const visits = await client.incr('visits');
         
         res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end(`Halo! Halaman ini sudah dikunjungi sebanyak ${visits} kali.\n`);
+        res.end(`Halo! Halaman ini diupdate dan sudah dikunjungi sebanyak ${visits} kali.\n`);
     });
 
     server.listen(3000, () => {
-        console.log('Server Compose running port 3000');
+        console.log('Server Compose berjalan port 3000');
     });
 }
 
